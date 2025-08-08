@@ -1,9 +1,12 @@
 import funcs
+import setup
 import sqlite3
 
-stuman = funcs.StudentManagement()
-recman = funcs.RecManagement()
-lesman = funcs.LessonManagement()
+conn = sqlite3.connect("database.db")
+setup.init_db()
+stuman = funcs.StudentManagement(conn)
+recman = funcs.RecManagement(conn)
+lesman = funcs.LessonManagement(conn)
 operations = {
 	1:"Öğrenci ekle",
 	2:"Öğrenci sil",

@@ -5,15 +5,28 @@ class StudentManagement():
     def __init__(self, con):
         self.conn = con
         self.cursor = con.cursor()
-    def addstudent(self, name, surname, bdate, number, major):
-        self.cursor.execute("insert into students values (?, ?, ?, ?, ?)", (name, surname, bdate, number, major,))
-        self.conn.commit()
 
-    def editstudent(self, number, newname):
+    def addstudent(self):
+        name = input("Ad: ")
+        surname = input("Soyad: ")
+        bdate = input("Doğum tarihi (YYYY-AA-GG): ")
+        major = input("Bölüm: ")
+        number = self.generate_student_number()
+        self.cursor.execute(
+            "insert into students values (?, ?, ?, ?, ?)",
+            (name, surname, bdate, number, major)
+        )
+        self.conn.commit()
+        print(f"Öğrenci eklendi. Otomatik numara: {number}")
+
+    def editstudent(self):
+        number = input("Öğrenci numarası: ")
+        newname = input("Yeni isim: ")
         self.cursor.execute("Update students set name = ? where number = ?", (newname, number,))
         self.conn.commit()
 
-    def delstudent(self, number):
+    def delstudent(self):
+        number = input("Silinecek öğrenci numarası: ")
         self.cursor.execute("Delete from students where number = ?", (number,))
         self.conn.commit()
 
@@ -25,6 +38,8 @@ class StudentManagement():
             print(f"Ad: {student[0]} {student[1]} | Bölüm: {student[4]} | Numara: {student[3]} | Doğum Tarihi: {student[2]}")
 
     def generate_student_number(self):
+        import random
+        import datetime
         year = datetime.datetime.now().year
         while True:
             number = f"{year}{random.randint(100000, 999999)}"
@@ -37,18 +52,22 @@ class LessonManagement():
     def __init__(self, conn):
         self.conn = conn
         self.cursor = conn.cursor()
-    def addlesson(self, name, credit, major):
+
+    def addlesson(self):
+        name = input("Ders adı: ")
+        credit = input("Kredi: ")
+        major = input("Bölüm: ")
         self.cursor.execute("Select * from lessons Where name = ? and credit = ? and major = ?", (name, credit, major,))
         if(self.cursor.fetchone()):
-           print("Bu ders kaydı zaten bulunmakta.")
+            print("Bu ders kaydı zaten bulunmakta.")
         else:
-           self.cursor.execute("insert into lessons values(?, ?, ?)",(name, credit, major))
-           self.conn.commit()
+            self.cursor.execute("insert into lessons values(?, ?, ?)", (name, credit, major))
+            self.conn.commit()
 
-    def dellesson(self, name):
-        self.cursor.execute("Delete from lessons where name = ?", (name))
+    def dellesson(self):
+        name = input("Silinecek ders adı: ")
+        self.cursor.execute("Delete from lessons where name = ?", (name,))
         self.conn.commit()
-
 
     def listlesson(self):
         self.cursor.execute("Select * from lessons")
@@ -56,33 +75,42 @@ class LessonManagement():
         for lesson in self.cursor.fetchall():
             print(f"Ders adı: {lesson[0]} | Ders kredisi: {lesson[1]} | Dersin bölümü {lesson[2]}")
 
-
-
-
 class RecManagement():
     def __init__(self, conn):
         self.conn = conn
         self.cursor = conn.cursor()
-    def givelesson(self, number, lesson, major):
-        self.cursor.execute("Insert into students_lessons values(?, ?, ?,)", (number, lesson, major,))
+
+    def givelesson(self):
+        number = input("Öğrenci numarası: ")
+        lesson = input("Ders adı: ")
+        major = input("Bölüm: ")
+        self.cursor.execute("Insert into students_lessons values(?, ?, ?)", (number, lesson, major,))
         self.conn.commit()
-    def give_lesson_to_major(self, major, lesson):
-        self.cursor.execute("Select major = ? from students",(major))
+
+    def give_lesson_to_major(self):
+        major = input("Bölüm: ")
+        lesson = input("Ders adı: ")
+        self.cursor.execute("Select * from students Where major = ?", (major,))
         major_students = self.cursor.fetchall()
         for student in major_students:
-            self.cursor.execute("Insert into students_lessons values(?, ?, ?)", student[3], lesson, major,)
-    def listgivenlessons(self, number):
-        self.cursor.execute("Select * from students_lessons where number = ?", (number,))
+            self.cursor.execute("Insert into students_lessons values(?, ?, ?)", (student[3], lesson, major,))
+        self.conn.commit()
+
+    def listgivenlessons(self):
+        number = input("Öğrenci numarası: ")
+        self.cursor.execute("Select * from students where number = ?", (number,))
         student_lesson = self.cursor.fetchall()
         self.cursor.execute("Select name, surname from students where number = ?", (number,))
         student = self.cursor.fetchone()
         if not student:
             print("Öğrenci yok.")
             return
-        print("Adı: " + student[0] + "Soyadı: " + student[1] + "Aldığı dersler:")
+        print("Adı: " + student[0] + " Soyadı: " + student[1] + " Aldığı dersler:")
         for lesson in student_lesson:
             print(lesson[1])
 
-
-    def delgivenlesson(self, number, lesson):
+    def delgivenlesson(self):
+        number = input("Öğrenci numarası: ")
+        lesson = input("Silinecek ders: ")
         self.cursor.execute("Delete from students_lessons Where number = ? and lesson = ?", (number, lesson,))
+        self.conn.commit()

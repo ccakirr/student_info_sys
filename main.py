@@ -15,10 +15,25 @@ operations = {
 	5:"Ders ekle",
 	6:"Ders sil",
 	7:"Dersleri listele",
-	8:"Öğrenciye / Bölüme ders ata",
-	9:"Öğrenciye / Bölüme atanan dersi sil",
-	10:"Öğrencinin aldığı dersleri listele",
-	11: "Çıkış"
+	8:"Öğrenciye ders ata",
+	9:"Bölüme ders ata",
+	10:"Öğrenciye atanan dersi sil",
+	11:"Öğrencinin aldığı dersleri listele",
+	12: "Çıkış"
+}
+menu = {
+	1:stuman.addstudent,
+	2:stuman.delstudent,
+	3:stuman.editstudent,
+	4:stuman.liststudent,
+	5:lesman.addlesson,
+	6:lesman.dellesson,
+	7:lesman.listlesson,
+	8:recman.givelesson,
+	9:recman.give_lesson_to_major,
+	10:recman.delgivenlesson,
+	11:recman.listgivenlessons,
+	12:lambda: exit(0)
 }
 while (True):
 	print("Lütfen yapmak istediğiniz işlemi seçin")
@@ -29,19 +44,11 @@ while (True):
 	except ValueError:
 		print("Lütfen geçerli bir sayı giriniz.")
 		continue
-	if secim not in operations:
+	if secim not in menu:
 		print("Lütfen geçerli bir işlem seçiniz.")
 		continue
-	if secim == 1:
-		name = input("Öğrenci adı: ")
-		surname = input("Öğrenci soyadı: ")
-		bdate = input("Öğrenci doğum tarihi (GG.AA.YYYY şeklinde noktalarla birlikte): ")
-		number = stuman.generate_student_number()
-		major = input("Öğrenci bölümü: ")
-		stuman.addstudent(name, surname, bdate, number, major)
-	if secim == 2:
-		number = input("Lütfen silmek istediğiniz öğrencinin numarasını girin: ")
-		stuman.delstudent(number)
+	else:
+		menu[secim]()
 	
 
 

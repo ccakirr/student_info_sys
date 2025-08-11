@@ -84,33 +84,43 @@ class RecManagement():
         number = input("Öğrenci numarası: ")
         lesson = input("Ders adı: ")
         major = input("Bölüm: ")
-        self.cursor.execute("Insert into students_lessons values(?, ?, ?)", (number, lesson, major,))
+        self.cursor.execute(
+            "INSERT INTO students_lessons (stu_number, stu_lessons, stu_major) VALUES (?, ?, ?)",
+            (number, lesson, major)
+        )
         self.conn.commit()
 
     def give_lesson_to_major(self):
         major = input("Bölüm: ")
         lesson = input("Ders adı: ")
-        self.cursor.execute("Select * from students Where major = ?", (major,))
+        self.cursor.execute("SELECT * FROM students WHERE major = ?", (major,))
         major_students = self.cursor.fetchall()
         for student in major_students:
-            self.cursor.execute("Insert into students_lessons values(?, ?, ?)", (student[3], lesson, major,))
+            self.cursor.execute(
+                "INSERT INTO students_lessons (stu_number, stu_lessons, stu_major) VALUES (?, ?, ?)",
+                (student[3], lesson, major)  # student[3] = number
+            )
         self.conn.commit()
 
     def listgivenlessons(self):
         number = input("Öğrenci numarası: ")
-        self.cursor.execute("Select * from students where number = ?", (number,))
+        self.cursor.execute("SELECT * FROM students_lessons WHERE stu_number = ?", (number,))
         student_lesson = self.cursor.fetchall()
-        self.cursor.execute("Select name, surname from students where number = ?", (number,))
+        self.cursor.execute("SELECT name, surname FROM students WHERE number = ?", (number,))
         student = self.cursor.fetchone()
         if not student:
             print("Öğrenci yok.")
             return
-        print("Adı: " + student[0] + " Soyadı: " + student[1] + " Aldığı dersler:")
+        print(f"Adı: {student[0]} Soyadı: {student[1]} Aldığı dersler:")
         for lesson in student_lesson:
-            print(lesson[1])
+            print(lesson[1])  # lesson[1] = stu_lessons
 
     def delgivenlesson(self):
         number = input("Öğrenci numarası: ")
-        lesson = input("Silinecek ders: ")
-        self.cursor.execute("Delete from students_lessons Where number = ? and lesson = ?", (number, lesson,))
+        lesson = input("Silinecek ders adı: ")
+        self.cursor.execute(
+            "DELETE FROM students_lessons WHERE stu_number = ? AND stu_lessons = ?",
+            (number, lesson)
+        )
         self.conn.commit()
+
